@@ -27,6 +27,12 @@ int main() {
     // unsigned short starting[] = {1,2,3,4,0,6,7,5,8};
     unsigned short goalst[] = {1,2,3,4,5,6,7,8,0};
 
+    unsigned short n = 3;
+    unsigned short search_type = 0;
+
+    Problem starting_p(starting, n);
+    Node * solution = Graph_Search(starting_p, search_type);
+
 
     
     return 0;

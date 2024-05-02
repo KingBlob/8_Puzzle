@@ -48,11 +48,11 @@ Problem * Node::getState() {
     return this->state;
 }
 
-unsigned short Node::getSearch() const {
+unsigned short Node::getSearch() {
     return this->search;
 }
 
-unsigned short Node::getDepth() const {
+unsigned short Node::getDepth() {
     return this->depth;
 }
 
@@ -60,7 +60,7 @@ bool Node::operator==(Node & rhs) {
     return getState() == rhs.getState();
 }
 
-int Node::heuristic() const {
+int Node::heuristic() {
     switch(getSearch()) {
         case 1:
             // Uniform cost search
@@ -87,6 +87,6 @@ int Node::heuristic() const {
     }
 }
 
-int Node::cost() const {
+int Node::cost() {
     return getDepth() + heuristic();
 }
