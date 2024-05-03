@@ -53,20 +53,25 @@ Node * Graph_Search(Problem & p, unsigned short search_type) {
     vector<Node*> f_set;
     set<Problem *,compareNodeEquality> explored;
 
-    Node * root = new Node(&p, 0, search_type, 0);
-    frontier.push(root);
-    f_set.push_back(root);
+    Node * current = new Node(&p, 0, search_type, 0);
+    frontier.push(current);
+    f_set.push_back(current);
     // frontier_set.insert(root);
 
     while(true) {
 
         if (frontier.empty()) { return 0; }
 
-        Node * current = frontier.top();
+        current = frontier.top();
+        cout<<"Initial state:"<<endl;
+        current->getState()->printState();
+        
         if (current->getState()->goal()) { return current; }
 
         explored.insert(current->getState());
+        cout<<"expanding..."<<endl;
         expand(current, frontier, f_set, explored);
+        cout<<"Frontier size: "<<frontier.size()<<endl;
         // expand(current, frontier, explored);
     }
 }
@@ -79,6 +84,8 @@ void expand(Node * cur, priority_queue<Node*, vector<Node*>, compareNodeCost> & 
 
     for (int i = 0; i < 4; i++) {
         if (cur_state->Move(i)) {
+            cout<<"i: "<<i<<"  depth: "<<cur->getDepth()<<endl;
+            cur_state->Move(i)->printState();
             bool unique = true;
             // check explored set first then frontier set
             if (e.count(cur_state)) {
@@ -96,7 +103,7 @@ void expand(Node * cur, priority_queue<Node*, vector<Node*>, compareNodeCost> & 
                 }
             }
             if (unique) {
-                Node * n = new Node(cur_state->Move(i), cur, cur->getDepth()+1, cur->getSearch());
+                Node * n = new Node(cur_state->Move(i), cur, cur->getSearch(), cur->getDepth()+1);
                 f.push(n);
                 fs.push_back(n);
             }
@@ -107,5 +114,6 @@ void expand(Node * cur, priority_queue<Node*, vector<Node*>, compareNodeCost> & 
 void print_steps(Node* sol) {
     for (Node * i = sol; i; i=i->getParent()) {
         i->getState()->printState();
+        cout<<endl;
     }
 }
