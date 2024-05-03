@@ -61,6 +61,7 @@ bool Node::operator==(Node & rhs) {
 }
 
 int Node::heuristic() {
+    int retrn = 0;
     switch(getSearch()) {
         case 1:
             // Uniform cost search
@@ -68,23 +69,23 @@ int Node::heuristic() {
         
         case 2:
             //misplaced tile heuristic
-            int misplaced = 0;
             for (int i = 0; i < getState()->s2(); i++) {
                 if (getState()->getInitial()[i] != i+1)
-                    misplaced++;
+                    retrn++;
             }
-            return misplaced;
+            return retrn;
 
         case 3:
             //euclidean distance heuristic
-            int sum_dist = 0;
             for (int i = 0; i < getState()->getSize(); i++) {
                 for (int j = 0; j < getState()->getSize(); j++) {
                     int x = getState()->getInitial()[(3*i + j)];
-                    sum_dist += sqrt(pow((((x-1)%3)-i),2)+pow((((x-1)%3)-j),2));
+                    retrn += sqrt(pow((((x-1)%3)-i),2)+pow((((x-1)%3)-j),2));
                 }
             }
+            return retrn;
     }
+    return 0;
 }
 
 int Node::cost() {

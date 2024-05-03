@@ -7,8 +7,8 @@
 using namespace std;
 
 struct compareNodeCost{
-    bool operator()(Node lhs, Node rhs) const {
-        return (lhs.cost() < rhs.cost());
+    bool operator()(Node* lhs, Node* rhs) const {
+        return (lhs->cost() < rhs->cost());
     }
 };
 struct compareNodeEquality {
@@ -18,14 +18,15 @@ struct compareNodeEquality {
 };
 
 // void expand(Node &, priority_queue<Node, vector<Node>, compareNodeCost> &, set<Node,compareNodeEquality> &, set<Node,compareNodeEquality>&);
-void expand(Node &, priority_queue<Node, vector<Node>, compareNodeCost> &, vector<Node> &, set<Problem*,compareNodeEquality> &);
+void expand(Node *, priority_queue<Node*, vector<Node*>, compareNodeCost> &, vector<Node*> &, set<Problem*,compareNodeEquality> &);
 Node * Graph_Search(Problem &, unsigned short);
+void print_steps(Node *);
 
 
 int main() {
-    unsigned short starting[] = {1,0,3,4,2,6,7,5,8};
-    // unsigned short starting[] = {1,2,3,4,0,6,7,5,8};
-    unsigned short goalst[] = {1,2,3,4,5,6,7,8,0};
+    // unsigned short starting[] = {1,0,3,4,2,6,7,5,8};
+    unsigned short starting[] = {1,2,3,0,5,6,4,7,8};
+    // unsigned short goalst[] = {1,2,3,4,5,6,7,8,0};
 
     unsigned short n = 3;
     unsigned short search_type = 0;
@@ -33,21 +34,26 @@ int main() {
     Problem starting_p(starting, n);
     Node * solution = Graph_Search(starting_p, search_type);
 
+    if (solution) {
+        print_steps(solution);
+    }
+    else {
+        cout << "No solution possible" << endl;
+    }
 
-    
-    return 0;
+    return 1;
 }
 
 
 
 Node * Graph_Search(Problem & p, unsigned short search_type) {
 
-    priority_queue<Node, vector<Node>, compareNodeCost> frontier;
+    priority_queue<Node*, vector<Node*>, compareNodeCost> frontier;
     // set<Node,compareNodeEquality> frontier_set;
-    vector<Node> f_set;
+    vector<Node*> f_set;
     set<Problem *,compareNodeEquality> explored;
 
-    Node root(&p, 0, search_type, 0);
+    Node * root = new Node(&p, 0, search_type, 0);
     frontier.push(root);
     f_set.push_back(root);
     // frontier_set.insert(root);
@@ -56,19 +62,19 @@ Node * Graph_Search(Problem & p, unsigned short search_type) {
 
         if (frontier.empty()) { return 0; }
 
-        Node current = frontier.top();
-        if (current.getState()->goal()) { return &current; }
+        Node * current = frontier.top();
+        if (current->getState()->goal()) { return current; }
 
-        explored.insert(current.getState());
+        explored.insert(current->getState());
         expand(current, frontier, f_set, explored);
         // expand(current, frontier, explored);
     }
 }
 // void expand(Node & cur, priority_queue<Node, vector<Node>, compareNodeCost> & f, set<Node,compareNodeEquality> & e, set<Node,compareNodeEquality> &fs) {
-void expand(Node & cur, priority_queue<Node, vector<Node>, compareNodeCost> & f, vector<Node> & fs, set<Problem *,compareNodeEquality> & e) {
-    unsigned short search_t = cur.getSearch();
+void expand(Node * cur, priority_queue<Node*, vector<Node*>, compareNodeCost> & f, vector<Node*> & fs, set<Problem *,compareNodeEquality> & e) {
+    unsigned short search_t = cur->getSearch();
 
-    Problem * cur_state = cur.getState();
+    Problem * cur_state = cur->getState();
     f.pop();
 
     for (int i = 0; i < 4; i++) {
@@ -83,19 +89,23 @@ void expand(Node & cur, priority_queue<Node, vector<Node>, compareNodeCost> & f,
             // could be an issue: can't have same state with different
             // costs here, so might get incorrect cost.
                 for (int i = 0; i < fs.size(); i++) {
-                    if (cur_state->Move(i) == fs.at(i).getState()) {
+                    if (cur_state->Move(i) == fs.at(i)->getState()) {
                         unique = false;
                         break;
                     }
                 }
             }
             if (unique) {
-                Node n(cur_state->Move(i), &cur, cur.getDepth()+1, cur.getSearch());
+                Node * n = new Node(cur_state->Move(i), cur, cur->getDepth()+1, cur->getSearch());
                 f.push(n);
                 fs.push_back(n);
             }
         }
     }
+}
 
-
+void print_steps(Node* sol) {
+    for (Node * i = sol; i; i=i->getParent()) {
+        i->getState()->printState();
+    }
 }
