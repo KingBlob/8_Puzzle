@@ -80,7 +80,7 @@ int Node::heuristic() {
             for (int i = 0; i < getState()->getSize(); i++) {
                 for (int j = 0; j < getState()->getSize(); j++) {
                     int x = getState()->getInitial()[(3*i + j)];
-                    retrn += sqrt(pow((((x-1)%3)-i),2)+pow((((x-1)%3)-j),2));
+                    retrn += sqrt(pow((((x-1)/3)-i),2)+pow((int((x-1)%3)-j),2));
                 }
             }
             return retrn;

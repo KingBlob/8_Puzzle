@@ -1,6 +1,7 @@
 #include <iostream>
 #include <queue>
 #include <vector>
+#include <string>
 // #include <set>
 #include "../headers/node.hpp"
 
@@ -26,15 +27,43 @@ bool set_contains(vector<Problem *> &, Problem *);
 
 
 int main() {
+
+    unsigned short n = 3;
+    unsigned short search_type = 0;
+    int puzzletype = 0;
+    int inpt;
     unsigned short starting[] = {1,0,3,4,2,6,7,5,8};
+
+    cout << "Welcome to 862241251 8 puzzle solver." << endl;
+    cout << "Type \"1\" to use a default puzzle, or \"2\" to enter your own puzzle." << endl;
+    cin >> puzzletype;
+
+    if (puzzletype == 2) {
+        cout << "Enter your puzzle, use a zero to represent the blank" << endl;
+        cout << "Enter the first row, use a space or tabs between numbers     ";
+        cin >> starting[0] >> starting[1] >> starting[2];
+        cout << "Enter the second row, use space or tabs between numbers     ";
+        cin >> starting[3] >> starting[4] >> starting[5];
+        cout << "Enter the third row, use space or tabs between numbers     ";
+        cin >> starting[6] >> starting[7] >> starting[8];
+    }
+    cout << endl;
+    cout << "Enter your choice of algorithm" << endl;
+    cout << "Uniform Cost Search" << endl;
+    cout << "A* with the Misplaced Tile heuristic" << endl;
+    cout << "A* with the Euclidean Distance heuristic" << endl;
+    cin >> search_type;
+
+    
     // unsigned short starting[] = {1,2,3,0,5,6,4,7,8};
     // unsigned short starting[] = {1,2,3,4,5,6,7,0,8};
     // unsigned short goalst[] = {1,2,3,4,5,6,7,8,0};
 
-    unsigned short n = 3;
-    unsigned short search_type = 3;
+    
 
     Problem starting_p(starting, n);
+    starting_p.printState();
+    // return 1;
     Graph_Search(starting_p, search_type);
 
     return 1;
@@ -74,6 +103,9 @@ void Graph_Search(Problem & p, unsigned short search_type) {
         // cout<<"Frontier size: "<<frontier.size()<<endl;
         // expand(current, frontier, explored);
         nodes_expanded++;
+        if (nodes_expanded%1000 == 0) {
+            cout<<nodes_expanded<<endl;
+        }
         max_frontier = max(max_frontier, int(frontier.size()));
     }
     if (solution) {
@@ -84,6 +116,8 @@ void Graph_Search(Problem & p, unsigned short search_type) {
     }
     else {
         cout << "No solution possible" << endl;
+        cout << "\nTo solve this problem the search algorithm expanded a total of " << nodes_expanded << " nodes." << endl;
+        cout << "The maximum number of nodes in queue at any one time: " << max_frontier << "." << endl;
     }
 }
 // void expand(Node & cur, priority_queue<Node, vector<Node>, compareNodeCost> & f, set<Node,compareNodeEquality> & e, set<Node,compareNodeEquality> &fs) {
