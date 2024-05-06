@@ -24,6 +24,7 @@ void Graph_Search(Problem &, unsigned short);
 void print_steps(Node *);
 
 bool set_contains(vector<Problem *> &, Problem *);
+void pop_vect(Problem *, vector<Problem *> & v);
 
 
 int main() {
@@ -104,7 +105,7 @@ void Graph_Search(Problem & p, unsigned short search_type) {
         // expand(current, frontier, explored);
         nodes_expanded++;
         if (nodes_expanded%1000 == 0) {
-            cout<<nodes_expanded<<endl;
+            cout<<nodes_expanded<<". Frontier: "<<frontier.size()<<" f_set: "<<f_set.size()<<" cur_depth: "<<current->getDepth()<<endl;
         }
         max_frontier = max(max_frontier, int(frontier.size()));
     }
@@ -126,7 +127,11 @@ void expand(Node * cur, priority_queue<Node*, vector<Node*>, compareNodeCost> & 
 
     Problem * cur_state = cur->getState();
     f.pop();
+    pop_vect(cur_state, fs);
 
+    // Problem is HERE ------------------------
+    // we can't call move(i) every time, need to make a pointer to it because it creates a new object
+    // we're creating so many memory leaks lol
     for (int i = 0; i < 4; i++) {
         if (cur_state->Move(i)) {
             // cout<<"i: "<<i<<"  depth: "<<cur->getDepth()<<"  cost: "<<cur->cost()<<endl;
@@ -183,8 +188,11 @@ bool set_contains(vector<Problem *> & check_set, Problem * val) {
         // val->printState();
         // cout<<"Equal ";
         // check_set.at(i)->printState();
+        if (val->getBlank() != check_set.at(i)->getBlank()) {
+            continue;
+        }
         for (int j = 0; j < val->s2(); j++) {
-            if (val->getInitial()[j] != check_set.at(i)->getInitial()[j]) {
+            if (val->initialAt(j) == check_set.at(i)->initialAt(j)) {
                 numequal++;
             }
         }
@@ -195,4 +203,23 @@ bool set_contains(vector<Problem *> & check_set, Problem * val) {
         // cout<<"No"<<endl;
     }
     return false;
+}
+
+void pop_vect(Problem * p, vector<Problem *> & v) {
+    for (int i = 0; i < v.size(); i++) {
+        if (p->getBlank() != v.at(i)->getBlank()) {
+            continue;
+        }
+        int numequal = 0;
+        for (int j = 0; j < p->s2(); j++) {
+            if (p->initialAt(j) == v.at(i)->initialAt(j)) {
+                numequal++;
+            }
+        }
+        if (numequal == 9) {
+            v.erase(v.begin() + i);
+            // cout << "Erased" << endl;
+            return;
+        }
+    }
 }

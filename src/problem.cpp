@@ -147,3 +147,7 @@ unsigned short Problem::at(int i) const {
 const int Problem::s2() const {
     return size * size;
 }
+
+unsigned short Problem::initialAt(int i) {
+    return initial_state[i];
+}

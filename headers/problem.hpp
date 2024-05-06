@@ -19,6 +19,7 @@ class Problem {
         unsigned short* getInitial();
         unsigned short getSize() const;
         unsigned short getBlank();
+        unsigned short initialAt(int);
 
         void printState();
 
