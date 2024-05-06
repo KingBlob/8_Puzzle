@@ -70,6 +70,8 @@ int Node::heuristic() {
         case 2:
             //misplaced tile heuristic
             for (int i = 0; i < getState()->s2(); i++) {
+                if (getState()->getInitial()[i] == 0)
+                    continue;
                 if (getState()->getInitial()[i] != i+1)
                     retrn++;
             }
@@ -80,6 +82,8 @@ int Node::heuristic() {
             for (int i = 0; i < getState()->getSize(); i++) {
                 for (int j = 0; j < getState()->getSize(); j++) {
                     int x = getState()->getInitial()[(3*i + j)];
+                    if (x == 0)
+                        continue;
                     retrn += sqrt(pow((((x-1)/3)-i),2)+pow((int((x-1)%3)-j),2));
                 }
             }
