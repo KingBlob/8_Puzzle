@@ -2,28 +2,30 @@
 #include <queue>
 #include <vector>
 #include <string>
-// #include <set>
 #include "../headers/node.hpp"
 
 using namespace std;
 
+// Struct necessary to make the priority queue work with the Node class
+// Compares the cost of 2 nodes to determine which one has the lowest
 struct compareNodeCost{
     bool operator()(Node* lhs, Node* rhs) const {
         return (lhs->cost() > rhs->cost());
     }
 };
-// struct compareNodeEquality {
-//     bool operator()(Problem * lhs, Problem * rhs) const {
-//         return (*lhs == *rhs);
-//     }
-// };
 
-// void expand(Node &, priority_queue<Node, vector<Node>, compareNodeCost> &, set<Node,compareNodeEquality> &, set<Node,compareNodeEquality>&);
-void expand(Node *, priority_queue<Node*, vector<Node*>, compareNodeCost> &, vector<Problem*> &, vector<Problem*> &);
+// Performs a search over the starting state
+// Inputs are a starting Problem and a search type
 void Graph_Search(Problem &, unsigned short);
+// Expands the Node popped from the frontier priority queue.
+// Inputs are the Node expanded, the frontier, frontier set, and explored set.
+void expand(Node *, priority_queue<Node*, vector<Node*>, compareNodeCost> &, vector<Problem*> &, vector<Problem*> &);
+// Prints the steps of the solution by traversing the parent Nodes until it reaches the root.
 void print_steps(Node *);
 
+// Helper function that checks to see if the "set" (vector) has a Problem with an equivalent state.
 bool set_contains(vector<Problem *> &, Problem *);
+// Helper function used to remove the item from the frontier set if it was explored.
 void pop_vect(Problem *, vector<Problem *> & v);
 
 
@@ -55,16 +57,8 @@ int main() {
     cout << "A* with the Euclidean Distance heuristic" << endl;
     cin >> search_type;
 
-    
-    // unsigned short starting[] = {1,2,3,0,5,6,4,7,8};
-    // unsigned short starting[] = {1,2,3,4,5,6,7,0,8};
-    // unsigned short goalst[] = {1,2,3,4,5,6,7,8,0};
-
-    
-
     Problem starting_p(starting, n);
     starting_p.printState();
-    // return 1;
     Graph_Search(starting_p, search_type);
 
     return 1;
@@ -75,14 +69,12 @@ int main() {
 void Graph_Search(Problem & p, unsigned short search_type) {
 
     priority_queue<Node*, vector<Node*>, compareNodeCost> frontier;
-    // set<Node,compareNodeEquality> frontier_set;
     vector<Problem*> f_set;
     vector<Problem *> explored;
 
     Node * current = new Node(&p, 0, search_type, 0);
     frontier.push(current);
     f_set.push_back(current->getState());
-    // frontier_set.insert(root);
 
     int nodes_expanded = 0;
     int max_frontier = 1;
@@ -93,16 +85,12 @@ void Graph_Search(Problem & p, unsigned short search_type) {
         if (frontier.empty()) { break; }
 
         current = frontier.top();
-        // cout<<"Initial state:"<<endl;
-        // current->getState()->printState();
         
         if (current->getState()->goal()) { solution = current; break; }
 
         explored.push_back(current->getState());
-        // cout<<"expanding..."<<endl;
         expand(current, frontier, f_set, explored);
-        // cout<<"Frontier size: "<<frontier.size()<<endl;
-        // expand(current, frontier, explored);
+
         nodes_expanded++;
         if (nodes_expanded%1000 == 0) {
             cout<<nodes_expanded<<". Frontier: "<<frontier.size()<<" f_set: "<<f_set.size()<<" cur_depth: "<<current->getDepth()<<endl;
@@ -121,36 +109,30 @@ void Graph_Search(Problem & p, unsigned short search_type) {
         cout << "The maximum number of nodes in queue at any one time: " << max_frontier << "." << endl;
     }
 }
-// void expand(Node & cur, priority_queue<Node, vector<Node>, compareNodeCost> & f, set<Node,compareNodeEquality> & e, set<Node,compareNodeEquality> &fs) {
+
 void expand(Node * cur, priority_queue<Node*, vector<Node*>, compareNodeCost> & f, vector<Problem*> & fs, vector<Problem *> & es) {
     unsigned short search_t = cur->getSearch();
 
     Problem * cur_state = cur->getState();
+
     f.pop();
     pop_vect(cur_state, fs);
 
-    // Problem is HERE ------------------------
-    // we can't call move(i) every time, need to make a pointer to it because it creates a new object
-    // we're creating so many memory leaks lol
     for (int i = 0; i < 4; i++) {
-        if (cur_state->Move(i)) {
-            // cout<<"i: "<<i<<"  depth: "<<cur->getDepth()<<"  cost: "<<cur->cost()<<endl;
-            // cur_state->Move(i)->printState();
+        Problem * cur_move = cur_state->Move(i);
+        if (cur_move) {
             bool unique = true;
             // check explored set first then frontier set
-            if (set_contains(es,cur_state->Move(i))) {
+            if (set_contains(es,cur_move)) {
                 unique = false;
             }
             else {
-            // checking frontier for the state
-            // could be an issue: can't have same state with different
-            // costs here, so might get incorrect cost.
-                if (set_contains(fs, cur_state->Move(i))) {
+                if (set_contains(fs, cur_move)) {
                     unique = false;
                 }
             }
             if (unique) {
-                Node * n = new Node(cur_state->Move(i), cur, cur->getSearch(), cur->getDepth()+1);
+                Node * n = new Node(cur_move, cur, cur->getSearch(), cur->getDepth()+1);
                 f.push(n);
                 fs.push_back(n->getState());
             }
@@ -159,10 +141,6 @@ void expand(Node * cur, priority_queue<Node*, vector<Node*>, compareNodeCost> & 
 }
 
 void print_steps(Node* sol) {
-    // for (Node * i = sol; i; i=i->getParent()) {
-    //     i->getState()->printState();
-    //     cout<<endl;
-    // }
 
     if (sol->getParent()) {
         print_steps(sol->getParent());
@@ -184,10 +162,6 @@ void print_steps(Node* sol) {
 bool set_contains(vector<Problem *> & check_set, Problem * val) {
     for (int i = 0; i < check_set.size(); i++) {
         int numequal = 0;
-        // cout<<"Does ";
-        // val->printState();
-        // cout<<"Equal ";
-        // check_set.at(i)->printState();
         if (val->getBlank() != check_set.at(i)->getBlank()) {
             continue;
         }
@@ -197,10 +171,8 @@ bool set_contains(vector<Problem *> & check_set, Problem * val) {
             }
         }
         if (numequal == 9) {
-            // cout<<"Yes"<<endl;
             return true;
         }
-        // cout<<"No"<<endl;
     }
     return false;
 }
@@ -218,7 +190,6 @@ void pop_vect(Problem * p, vector<Problem *> & v) {
         }
         if (numequal == 9) {
             v.erase(v.begin() + i);
-            // cout << "Erased" << endl;
             return;
         }
     }
